@@ -19,6 +19,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.scripts]
+sast-rules-mini = "sast_rules_mini.__main__:main"
+
 [project.urls]
 Homepage = "https://github.com/Trysac/u160-sast-rules-mini"
 Source = "https://github.com/Trysac/u160-sast-rules-mini"

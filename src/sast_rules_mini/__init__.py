@@ -1,21 +1,31 @@
-"""Lightweight static analysis for Python: ten AST security rules with import alias tracking, inline suppressions, text output and SARIF 2.1.0 with code point columns"""
+"""Lightweight static analysis for Python: ten AST security rules with import alias tracking.
+
+Provides fast AST scanning, inline comment suppression, SARIF 2.1.0 output,
+and a command-line interface.
+"""
 
 from __future__ import annotations
 
-__all__ = ["__version__", "normalize"]
+import logging
+
+from sast_rules_mini.errors import SastError
+from sast_rules_mini.formatters import format_text, to_sarif
+from sast_rules_mini.rules import RULES, Finding, Rule, Severity
+from sast_rules_mini.scanner import scan_paths, scan_source
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __version__ = "0.1.0"
 
-
-def normalize(value: str) -> str:
-    """Return ``value`` trimmed and lower-cased.
-
-    Placeholder API created by the template: replace it with the utility's real behavior.
-
-    Raises:
-        ValueError: if ``value`` is empty or only whitespace.
-    """
-    cleaned = value.strip()
-    if not cleaned:
-        raise ValueError("value must not be empty")
-    return cleaned.lower()
+__all__ = [
+    "RULES",
+    "Finding",
+    "Rule",
+    "SastError",
+    "Severity",
+    "__version__",
+    "format_text",
+    "scan_paths",
+    "scan_source",
+    "to_sarif",
+]

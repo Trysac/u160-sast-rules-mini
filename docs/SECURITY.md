@@ -1,19 +1,11 @@
-# Security notes
+# Security and Threat Model
 
-## Threat model
+## Threat Model
 
-`trysac-sast-rules-mini` is a pure library without I/O. The main risks are:
+- **Defended**: The tool identifies common syntactic misconfigurations and dangerous patterns (e.g., shell injection, unsafe deserialization) at the AST level. It provides consistent, machine-readable SARIF output for CI integration.
+- **Not Defended**: The scanner does not perform inter-procedural dataflow analysis, dynamic symbol resolution, or tracking of aliasing across functions/files. Dynamically executed code (e.g., via `getattr()`, `__import__()`, or reflection) can bypass detection. It never guarantees that code is free of vulnerabilities.
 
-- **Supply chain**: a compromised dependency or CI action. Mitigation: no runtime dependencies,
-  Dependabot weekly updates, actions pinned to major versions, minimal workflow permissions.
-- **Leaked secrets**: tokens committed by mistake. Mitigation: `gitleaks` runs in the local gates
-  and in CI; `.env` files are git-ignored.
-- **Untrusted input**: callers may pass hostile strings. Mitigation: validate input and fail with
-  explicit exceptions; never `eval`, `exec` or deserialize untrusted data.
+## Limits
 
-## Publishing
-
-Releases are published to PyPI with trusted publishing (OIDC) when available, never with a
-long-lived token stored in the repository.
-
-To report a vulnerability, see [SECURITY.md](../SECURITY.md).
+- **Secret Handling**: Rule `PY007` identifies assignments to variable names matching sensitive patterns (password, secret, token, api_key), but the actual secret values are never included in findings, reports, or SARIF output.
+- **Resource Consumption**: To prevent Denial of Service (DoS) via resource exhaustion, the tool enforces a default file size limit of 1 MB per file and a maximum traversal limit of 10,000 files.

@@ -1,48 +1,40 @@
 # sast-rules-mini
 
-[![PyPI version](https://img.shields.io/pypi/v/trysac-sast-rules-mini)](https://pypi.org/project/trysac-sast-rules-mini/)
-[![License: MIT](https://img.shields.io/pypi/l/trysac-sast-rules-mini)](LICENSE)
-[![CI](https://github.com/Trysac/u160-sast-rules-mini/actions/workflows/ci.yml/badge.svg)](https://github.com/Trysac/u160-sast-rules-mini/actions/workflows/ci.yml)
+Lightweight static analysis for Python: ten AST security rules with import alias tracking, inline suppressions, text output, and SARIF 2.1.0 with code point columns.
 
-Lightweight static analysis for Python: ten AST security rules with import alias tracking, inline suppressions, text output and SARIF 2.1.0 with code point columns
+## The Problem
 
-## Problem
+Small projects want a security lint in CI that catches `eval`, `shell=True`, unsafe deserialisation, weak hashes, and string-built SQL, but full SAST suites are heavy to configure and some cost money. Bandit covers this but its output and rule set are large. This tool is a dependency-free AST scanner with ten precise rules and SARIF that GitHub code scanning accepts.
 
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and what
-they do today without it. Replace this paragraph when the first real feature lands.
+## Installation
 
-## Install
-
-```sh
-pip install trysac-sast-rules-mini
-# or
-uv add trysac-sast-rules-mini
+```bash
+pip install sast-rules-mini
 ```
 
-Requires Python 3.10 or newer. No runtime dependencies.
-
-## Usage
+## Usage Example
 
 ```python
-import sast_rules_mini
+from sast_rules_mini import scan_source, to_sarif
 
-# normalize() trims surrounding whitespace and lower-cases the text.
-print(sast_rules_mini.normalize("  Hello World "))  # -> "hello world"
-
-# Blank input is rejected explicitly instead of returning an empty string.
-try:
-    sast_rules_mini.normalize("   ")
-except ValueError as exc:
-    print(f"rejected: {exc}")
+findings = scan_source("import subprocess; subprocess.run(cmd, shell=True)")
+sarif_report = to_sarif(findings)
+print(f"Found {len(findings)} issues; SARIF version: {sarif_report['version']}")
 ```
 
-## Documentation
+## Public API Summary
 
-- [Architecture](docs/ARCHITECTURE.md) and [decisions](docs/decisions/)
-- [Testing](docs/TESTING.md) and [security](docs/SECURITY.md)
-- [Project record](docs/PROJECT.md) and [stack](docs/STACK.md)
-- [Changelog](CHANGELOG.md) and [contributing guide](CONTRIBUTING.md)
+- `scan_source(source: str, path: str = '<string>', *, rules: Collection[str] | None = None) -> list[Finding]`: Scans a string for security findings.
+- `scan_paths(paths: Sequence[str | Path], *, rules=None, max_file_bytes: int = 1_048_576, max_files: int = 10_000) -> list[Finding]`: Scans files/directories recursively. Returns `SastError` on path failure or when file limits are exceeded.
+- `format_text(findings) -> str`: Renders human-readable terminal output.
+- `to_sarif(findings, *, tool_version: str) -> dict`: Exports findings to OASIS SARIF 2.1.0 schema.
+- `RULES: Mapping[str, Rule]`: Registry of rule IDs, severities, and descriptions.
+- `Finding` (dataclass): Contains `rule_id`, `severity` (high/medium/low), `path`, `line`, `column`, `message`.
 
-## License
+## Why not Bandit?
 
-[MIT](LICENSE) (c) 2026 Miguel Gomez
+Bandit is a comprehensive tool, but `sast-rules-mini` is smaller, has zero runtime dependencies, provides ten precise rules, and outputs SARIF with correct non-ASCII code-point columns.
+
+## Security
+
+See [docs/SECURITY.md](docs/SECURITY.md) for the threat model and limitations.
