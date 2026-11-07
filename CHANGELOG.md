@@ -9,4 +9,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Implement AST security scanner with 10 rules, alias tracking, inline suppressions, and SARIF 2.1.0 output.
 - Initial project structure from the factory utility template.
