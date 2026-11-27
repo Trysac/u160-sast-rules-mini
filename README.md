@@ -8,8 +8,10 @@ Small projects want a security lint in CI that catches `eval`, `shell=True`, uns
 
 ## Installation
 
+Not published to PyPI yet. Install it from GitHub:
+
 ```bash
-pip install sast-rules-mini
+pip install "git+https://github.com/Trysac/u160-sast-rules-mini"
 ```
 
 ## Usage Example
